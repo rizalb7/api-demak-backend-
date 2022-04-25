@@ -1,0 +1,25 @@
+GET http://localhost:5000/api/pegawai-kontrak/publik?id=1
+
+###
+GET http://localhost:5000/api/token
+
+###
+POST http://localhost:5000/api/login
+Content-Type: application/json
+
+{
+    "email": "cek0@gmail.com",
+    "password": "admin123"
+}
+
+###
+GET https://dummybansos.demakkab.go.id/api/token
+
+###
+POST https://dummybansos.demakkab.go.id/api/login
+Content-Type: application/json
+
+{
+    "email": "cek0@gmail.com",
+    "password": "admin123"
+}
