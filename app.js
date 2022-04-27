@@ -8,6 +8,10 @@ const app = express()
 const helmet = require('helmet')
 app.use(helmet())
 
+const swaggerUi = require('swagger-ui-express')
+const apiDocumentation = require('./apidocs.json')
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiDocumentation))
+
 let whiteList = [
     'http://localhost:3000'
 ]

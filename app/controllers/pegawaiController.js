@@ -6,9 +6,40 @@ const fs = require('fs')
 
 exports.publik = async (req, res) => {
     const nama = req.query.nama
+    const limit = parseInt(req.query.limit)
+    const page = parseInt(req.query.page)
+    let start = 0 + (page - 1) * limit
+    let end = page * limit 
     cari = nama ? {nama: {[Op.like]: `%${nama}%`}} : null
-    Pegawai.findAll({include:[{model: db.opd, as: 'opd'}], where: cari}).then((result) => {
-        res.send(result)
+    
+    await Pegawai.findAndCountAll({
+        include:[{model: db.opd, as: 'opd'}],
+        where: cari,
+        order: [['id', 'asc']],
+        limit: limit,
+        offset: start
+    }).then((result) => {
+        const countFiltered = result.count
+        const pagination = {}
+        pagination.totalRow = result.count
+        pagination.totalPage = Math.ceil(countFiltered / limit)
+        if (start > 0){
+            pagination.prev = {
+                page: page - 1,
+                limit
+            }
+        }
+        if (end < countFiltered){
+            pagination.next = {
+                page: page + 1,
+                limit
+            }
+        }
+        res.status(200).send({
+            message: 'Data Semua Pegawai Kontrak',
+            pagination,
+            data: result.rows
+        })
     }).catch((err) => {
         res.status(500).send({
             message: err.message || "Gagal menampilkan data pegawai"
@@ -42,7 +73,10 @@ exports.create = async (req, res) => {
                 pegawai.foto = req.file.path
             }
             Pegawai.create(pegawai).then((result) => {
-                res.send(result)
+                res.send({
+                    result,
+                    message: 'Data Pegawai Berhasil Tersimpan'
+                })
             }).catch((err) => {
                 res.status(500).send({
                     message: err.message || "Gagal menambah data pegawai"
@@ -56,12 +90,12 @@ exports.findAll = async (req, res) => {
 
     await User.findByPk(req.userIdJwt).then(user => {
         user.getRoles().then(role => {
-            const nama = req.query.nama
+            const id = req.query.id
             let cari
             if (role[0].nama == "admin_opd") {
-                cari = nama ? {nama: {[Op.like]: `%${nama}%`}, opdId: req.opdIdJwt} : {opdId: req.opdIdJwt}
+                cari = id ? {id, opdId: req.opdIdJwt} : {opdId: req.opdIdJwt}
             } else {
-                cari = nama ? {nama: {[Op.like]: `%${nama}%`}} : null
+                cari = id ? {id} : null
             }
             Pegawai.findAll({include:[{model: db.opd, as: 'opd'}], where: cari}).then((result) => {
                 res.send(result)
@@ -164,7 +198,7 @@ exports.delete = async (req, res) => {
                                     fs.unlinkSync(foto)
                                 }
                                 res.send({
-                                    message: "Data Pegawai Terdelete"
+                                    message: `Data Pegawai Id=${id} Terhapus`
                                 })
                             } else {
                                 res.send({
@@ -183,23 +217,33 @@ exports.delete = async (req, res) => {
                     })
                 })
             } else {
-                Pegawai.destroy(req.body, {
-                    where: {id}
-                }).then((result) => {
-                    if (result==1){
-                        res.send({
-                            message: "Data Pegawai Terdelete"
+                Pegawai.findByPk(id).then((result) => {
+                    foto = result.foto
+                    Pegawai.destroy({
+                        where: {id}
+                    }).then((result) => {
+                        if (result==1){
+                            if(fs.existsSync(foto)){
+                                fs.unlinkSync(foto)
+                            }
+                            res.send({
+                                message: `Data Pegawai Id=${id} Terhapus`
+                            })
+                        } else {
+                            res.send({
+                                message: `Gagal delete data Pegawai Id=${id}`
+                            })
+                        }
+                    }).catch((err) => {
+                        res.status(500).send({
+                            message: `Error saat delete data Pegawai Id=${id}`
                         })
-                    } else {
-                        res.send({
-                            message: `Gagal delete data Pegawai Id=${id}`
-                        })
-                    }
-                }).catch((err) => {
-                    res.status(500).send({
-                        message: `Error saat delete data Pegawai Id=${id}`
+                    });
+                }).catch(err => {
+                    res.status(400).send({
+                        message: `Id ${id} tidak ditemukan`
                     })
-                });
+                })
             }
         })
     })

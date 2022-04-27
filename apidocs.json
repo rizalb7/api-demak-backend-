@@ -1,0 +1,502 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Demak",
+    "description": "Note: RoleUser: [superadmin, admin_opd, user]",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "localhost"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Autentikasi User"
+    },
+    {
+      "name": "User",
+      "description": "Kelola Data User (Hak Akses Superadmin saja)"
+    },
+    {
+      "name": "OPD",
+      "description": "Kelola Data OPD (Hak Akses Superadmin saja)"
+    },
+    {
+      "name": "Pegawai",
+      "description": "Kelola Data Pegawai (Hak Akses Superadmin dan Admin_OPD (kecuali /publik))"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login User",
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+              "description": "accessToken"
+          },
+          "400": {
+              "description": "Password Salah"
+          },
+          "500": {
+              "description": "Email tidak ditemukan"
+          }
+        }
+      }
+    },
+    "/auth/token": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh Token",
+        "description": "",
+        "responses": {
+          "200": {
+              "description": "accessToken"
+          },
+          "401": {
+              "description": "Jika tidak ditemukan token di cookie"
+          },
+          "403": {
+              "description": "Forbidden"
+          },
+          "500": {
+              "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logout User",
+        "description": "",
+        "responses": {
+          "200": {
+              "description": "Sukses"
+          },
+          "204": {
+              "description": "No Content"
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Tampil User",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Tambah User",
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nama": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confPassword": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "[superadmin, admin_opd, user]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update User",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id User"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nama": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sukses"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Hapus User",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id User"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/opd": {
+      "get": {
+        "tags": [
+          "OPD"
+        ],
+        "summary": "Tampil OPD",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "OPD"
+        ],
+        "summary": "Tambah OPD",
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "namaOpd": {
+                    "type": "string"
+                  },
+                  "aliasNamaOpd": {
+                    "type": "string"
+                  },
+                  "deskripsi": {
+                    "type": "text"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/opd/{id}": {
+      "put": {
+        "tags": [
+          "OPD"
+        ],
+        "summary": "Update OPD",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id OPD"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "namaOpd": {
+                    "type": "string"
+                  },
+                  "aliasNamaOpd": {
+                    "type": "string"
+                  },
+                  "deskripsi": {
+                    "type": "text"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sukses"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "OPD"
+        ],
+        "summary": "Hapus OPD",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id OPD"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/pegawai-kontrak": {
+      "get": {
+        "tags": [
+          "Pegawai"
+        ],
+        "summary": "Tampil Pegawai",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pegawai"
+        ],
+        "summary": "Tambah Pegawai",
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/pegawai-kontrak/{id}": {
+      "put": {
+        "tags": [
+          "Pegawai"
+        ],
+        "summary": "Update Pegawai",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id Pegawai"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sukses"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Pegawai"
+        ],
+        "summary": "Hapus Pegawai",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id Pegawai"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    },
+    "/pegawai-kontrak/publik": {
+      "get": {
+        "tags": [
+          "Pegawai"
+        ],
+        "summary": "Tampil Data Pegawai (publik)",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Jumlah Halaman ditampilkan"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Batas Jumlah Data ditampilkan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result"
+          },
+          "500": {
+            "description": "Expect error"
+          }
+        }
+      }
+    }
+  }
+}
